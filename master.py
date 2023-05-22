@@ -436,7 +436,8 @@ def adaptive_experiment(targets):
     match_file.close()
     nomatch_file.close()
 
-def main(targets, similarity, original=False):
+
+def run_experiment(targets, similarity, original=False):
     perf_path = 'results/performance.csv'
     match_path = 'results/match.csv'
     nomatch_path = 'results/nomatch.csv'
@@ -511,8 +512,8 @@ def main(targets, similarity, original=False):
 
 
 if __name__ == '__main__':
-    # main(dataset, 'gaussian')
-    # main(dataset, 'cosine')
-    # main(dataset, 'quadratic')
-    # main(dataset, 'arctangent')
+    run_experiment(dataset, 'gaussian')
+    run_experiment(dataset, 'cosine')
+    run_experiment(dataset, 'quadratic')
+    run_experiment(dataset, 'arctangent')
     adaptive_experiment(dataset)

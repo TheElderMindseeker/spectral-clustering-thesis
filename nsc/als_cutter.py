@@ -50,9 +50,9 @@ def cut_als(aoi_shapefile, als_file, vegetation, dtm_file, margin, output_las_fi
     ground_level = elevation_band[rows, cols]
     als_data.z = als_data.z - ground_level
 
-    smol_als = laspy.create(
+    normalized_als = laspy.create(
         point_format=als_data.header.point_format,
         file_version=als_data.header.version
     )
-    smol_als.points = als_data.points
-    smol_als.write(output_las_file)
+    normalized_als.points = als_data.points
+    normalized_als.write(output_las_file)

@@ -1,5 +1,4 @@
 import csv
-import time
 
 import laspy
 import numpy as np
@@ -67,9 +66,7 @@ def detect_and_segment(input_cloud, k_neighbors, sigma_xy_sqrt, sigma_z_sqrt, ep
             bandwidth /= 2
 
     mean_shift = MeanShift(bandwidth=bandwidth, bin_seeding=True, n_jobs=-1)
-    grouping_start = time.time()
     mean_shift.fit(point_data)
-    grouping_time = time.time() - grouping_start
     group_labels = mean_shift.labels_
     group_centers = mean_shift.cluster_centers_
     group_weights = np.array([
@@ -78,7 +75,6 @@ def detect_and_segment(input_cloud, k_neighbors, sigma_xy_sqrt, sigma_z_sqrt, ep
     ])
     num_groups = group_centers.shape[0]
 
-    knn_start = time.time()
     # In the original work, points are viewed in XY-plane for this.
     knn_adjacency = kneighbors_graph(
         group_centers[:, :2],
@@ -86,7 +82,6 @@ def detect_and_segment(input_cloud, k_neighbors, sigma_xy_sqrt, sigma_z_sqrt, ep
         include_self=True,
         n_jobs=-1,
     )
-    knn_time = time.time() - knn_start
 
     group_ids = np.array(range(num_groups))
     node_knns = np.reshape(np.nonzero(knn_adjacency)[1], (num_groups, k_neighbors))
@@ -191,7 +186,6 @@ def detect_and_segment(input_cloud, k_neighbors, sigma_xy_sqrt, sigma_z_sqrt, ep
 
     matrix_is_pos_def = np.all(np.linalg.eigvals(normed_landmarks) > 0)
     if matrix_is_pos_def:
-        linalg_time = time.time()
         A_sqrt = sqrtm(normed_landmarks)
         if np.isclose(np.linalg.det(A_sqrt), 0, atol=eps**2):
             A_sqrt_inv = np.linalg.pinv(A_sqrt)
@@ -206,7 +200,6 @@ def detect_and_segment(input_cloud, k_neighbors, sigma_xy_sqrt, sigma_z_sqrt, ep
         Lambda_S_sqrt_inv = np.linalg.inv(sqrtm(Lambda_S))
         stack_matrix = np.vstack((normed_landmarks, normed_remaining.T))
         eigenvectors = stack_matrix @ A_sqrt_inv @ matrix_U @ Lambda_S_sqrt_inv
-        linalg_time = time.time() - linalg_time
     else:
         raise ValueError('Laplacian matrix block A is not positive definite')
 
